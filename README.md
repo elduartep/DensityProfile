@@ -18,9 +18,10 @@ ASCII file with x, y, z, r in Mpc/h
 ## Halos catalog
 ASCII file with x, y, z, m, r with xyzr in Mpc/h, m=mass in 10^10 M_\sun
 
-## or Haloes catalog
-
 # OUTPUTS
+
+density_halos...(density_voids...)      containing the density profile
+infor_mass_halos...(info_rad_voids...)  information about what is in each column of the density file
 
 
 
