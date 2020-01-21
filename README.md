@@ -29,4 +29,4 @@ infor_mass_halos...(info_rad_voids...)  information about what is in each column
 # parameters
 parameters.h
 
-you need so set here the cosmological parameters, the size of the box, number of particles, the name of the files, and if you want to work with halos or voids.
+you need so set here the cosmological parameters, the size of the box, number of particles, the name of the files, and wether you want to work with halos or voids.
