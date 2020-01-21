@@ -13,7 +13,8 @@ All files need to be in the working directory
 ASCII file with x, y, z in Mpc/h
 
 ## Voids catalog
-ASCII file with 
+ASCII file with x, y, z, r in Mpc/h
+the name of the file has to be 
 
 ## or Haloes catalog
 
