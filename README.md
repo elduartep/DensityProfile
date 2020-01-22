@@ -16,7 +16,7 @@ ASCII file with x, y, z in Mpc/h
 ASCII file with x, y, z, r in Mpc/h
 
 ## Halos catalog
-ASCII file with x, y, z, m, r with xyzr in Mpc/h, m=mass in 10^10 M_\sun
+ASCII file with x, y, z, m, r with xyzr in Mpc/h, m=mass in 10^11 M_\sun
 
 # OUTPUTS
 
