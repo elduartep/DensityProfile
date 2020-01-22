@@ -32,17 +32,17 @@ const int   Num_bin_stack_voids=8;
 const int   Num_bin_stack_objects=8;	// has to be the max of the last two
 
 
-const int    nc=256;			//	para los otros:512
-const int    NumPart=np*np*np;		//	numero total de particulas
-const int    NumCel=nc*nc*nc;		//	numero total de celdas
+const int    nc=256;			//	
+const int    NumPart=np*np*np;		//	number of particles
+const int    NumCel=nc*nc*nc;		//	number of cells
 const int    nc2=nc*nc;
 const int    nc24=nc2/4;
-const double pi=4.*atan(1.);			//	numero pi
+const double pi=4.*atan(1.);			//	number pi
 const double rho_cr=2.77526627;			//	[10¹¹ h² Ms / Mpc³]
-const double Mp=pow(Lbox,3.)*Om*rho_cr/NumPart;	//	masa de 1 particula [10¹¹ Ms/h]
+const double Mp=pow(Lbox,3.)*Om*rho_cr/NumPart;	//	particles mass [10¹¹ Ms/h]
 
 
-//	Num_bines radiales perfil para los diferentes bines radiales stack
+//	number of radial bins for the different mass/voids_rad bins
 const int Num_bin_rad_voids[]={150,140,130,120,110,100,90,80};
 const int Num_bin_rad_halos[]={50,50,50,50};
 int Num_bin_rad[Num_bin_stack_objects];
@@ -51,48 +51,46 @@ const double escala=0.11;	//	300*0.05=15, ... , 180*0.05=9, 160*0.05=8. da el r/
 const int   NumMax_bin_rad_halos=50;
 const int   NumMax_bin_rad_voids=150;//has to be greater or equal to Num_bin_rad_voids[0];		//	520 resultaron ser muchos, se demora demasiado
 
-//	para guardar el perfil individual de cada objeto (indice objeto, indice bin radial)
+//	individual density profile (halo/void index, mass/rad_void index)
 double **perfil_individual;
 double **perfil_individual2;
 
-//	para guardar el perfil medio de cada octante (indice octante, indice stack, indice bin radial)
+//	average density profile for the octants (octant index, mass/rad_voids bin index, radial bin index)
 double ***perfil_octante;
 double ***perfil_octante2;
 double ***error_perfil_octante;
 double ***error_perfil_octante2;
 
-//	para guardar el perfil medio calculado con los octantes (indice stack, indice bin radial)
+//	average density profile of all octants (mass/rad_void bin index, radial index for the density profile)
 double **perfil_medio;
 double **perfil_medio2;
 double **error_perfil_medio;
 double **error_perfil_medio2;
 
 
-//	para guardar el perfil medio calculado con los individuales (indice stack, indice bin radial)
+//	average density profile of all the individual profiles (mass/rad_void bin index, radial bin for the density)
 double **perfil_medioI;
 double **perfil_medioI2;
 double **error_perfil_medioI;
 double **error_perfil_medioI2;
 
 
-double   NumObjetosStack[Num_bin_stack_objects];	//	cantidad_voids_bin_stack
+double   NumObjetosStack[Num_bin_stack_objects];	//	voids/haloes in each rad_void/mass bin
 double   NumObjetosJNS[JN][Num_bin_stack_objects];
-double   CargaStack[Num_bin_stack_objects];   //	carga media de cada bin_stack
+double   CargaStack[Num_bin_stack_objects];   //	average mass/rad in each mass/rad_void bin
 
-const    double rad_max_halos=5.;	//	radio maximo para los Num_bines logaritmicos, unidades rv
-					//	equivale a 100 Num_bines
-const    double rad_min_halos=0.2;	//	radio minimo para los Num_bines logaritmicos, unidades rv
-const    double rad_max_voids=Num_bin_rad_voids[0]*escala;	//	radio maximo para los Num_bines lineales, unidades rv
-					//	equivale a 300 Num_bines
-const    double rad_min_voids=0.;	//	radio minimo para los Num_bines lineales, unidades rv
+const    double rad_max_halos=5.;	//	maximum radious for sapling the profiles, in rh units
+const    double rad_min_halos=0.2;	//	minimum rad for sampling the density, in rh units
+const    double rad_max_voids=Num_bin_rad_voids[0]*escala;	//	maximum rad for sampling the void profile, in rv units
+const    double rad_min_voids=0.;	//	minimum rad for sampling the voids profile
 
 
 
-double   carga_max; //	carga maxima de los objetos para los Num_bines_stack
-double   carga_min; //	carga minima de los objetos para los Num_bines_stack
+double   carga_max; //	maximum mass/rad_void for splitting the saple in bins
+double   carga_min; //	minimum mass/rad_void for splitting the saple in bins
 
 
-//	kdtree de las particulas
+//	kdtree for storing the dark matter particles
 int     *Ocu;       //	numero de ocupacion de cada celda
 int    **Id;        //	indice de las particulas en cada celda
 double  *X,*Y,*Z;   //	coordenadas de todas las particulas
@@ -168,7 +166,7 @@ void archivos_voids(void){
 
 
 
-
+// counting voids
 void cuenta_voids(void){
   // para que todos los catalogos tengan los mismos cortes en los Num_bines stack
   carga_min=radio_min_todos*nc/Lbox;
@@ -202,7 +200,7 @@ void cuenta_voids(void){
 
 
 
-
+// reading voids file
 void lee_voids(void){
   printf("lee_voids...\n");fflush(stdout);
   float x,y,z,r;
@@ -229,7 +227,7 @@ void lee_voids(void){
 
 
 
-
+// counting haloes
 void cuenta_halos(void){
   printf("cuenta_halos\n");fflush(stdout);
   float x,y,z,r,masa;
@@ -244,7 +242,7 @@ void cuenta_halos(void){
 
 
 
-
+// reading haloes from file
 void lee_halos(void){
   printf("lee_halos\n");fflush(stdout);
   float x,y,z,r,masa;
@@ -272,7 +270,7 @@ void lee_halos(void){
 
 
 
-
+// allocating halos or voids ==== objects
 void alloca_objetos(void){
   printf("alloca_objetos\n");fflush(stdout);
   printf("NumObjetos=%d\n",NumObjetos);fflush(stdout);
@@ -344,7 +342,7 @@ void alloca_objetos(void){
 
 
 
-
+// allocating individual prfiles
 void alloca_perfiles_individuales(void){
 printf("alloca_perfiles_individuales...\n");fflush(stdout);
   if(!( perfil_individual= (double **) malloc(NumObjetos * sizeof(double *)))){
@@ -392,7 +390,7 @@ void free_perfiles_individuales(void){
 
 
 
-
+// allocating profiles for each octant
 void alloca_perfiles_octantes(void){
 printf("alloca perfiles+errores octantes...\n");fflush(stdout);
   if(!( perfil_octante= (double ***) malloc(JN * sizeof(double **)))){
@@ -505,7 +503,7 @@ void free_perfiles_octantes(void){
 
 
 
-
+// allocating average profiles
 void alloca_perfiles_medios(void){
 printf("alloca_perfiles_medios...\n");fflush(stdout);
   if(!( perfil_medio= (double **) malloc(Num_bin_stack * sizeof(double *)))){
@@ -641,7 +639,7 @@ void free_perfiles_medios(void){
 
 
 
-
+// allocating all profiles
 void alloca_perfiles(void){
   alloca_perfiles_individuales();
   alloca_perfiles_octantes();
@@ -663,7 +661,7 @@ void free_perfiles(void){
 
 
 
-
+// allocating voum of the sampled shells
 void alloca_vol_bines(int voids){
 printf("alloca_vol_bines...\n");fflush(stdout);
 
@@ -729,7 +727,7 @@ free(vol_r);
 
 
 
-
+// allocating kdtree for particle storage
 void alloca_celdas_particulas(void){
   printf("alloca_celdas_particulas...\n");fflush(stdout);
   if(!(Ocu = (int*) calloc (NumCel , sizeof(int))))
@@ -782,7 +780,7 @@ void alloca_celdas_particulas(void){
 
 
 
-
+// allocating kdtree suxiliar variables
 void allocaId(void){
   printf("alloca Id...\n");
   fflush(stdout);
@@ -804,8 +802,7 @@ void allocaId(void){
 
 
 
-// definicion de los Num_bines logaritmicos para los radios (variable radial de los objetos stack
-// deben ir entre ~0.001 y 5->10 en unicades de nc
+// auxiliar variables for binning 
 void define_Num_bines(void){
   printf("define_Num_bines...\n");fflush(stdout);
   aux1 = 0.5*Num_bin/log(rad_max_halos/rad_min_halos);
@@ -840,7 +837,7 @@ void perfil_dispersion(void);
 
 
 
-
+// print density file
 void imprime_densidad(int voids){
   int i,j;
   FILE * AL;
@@ -943,7 +940,7 @@ printf("Imprime perfiles ...hecho\n");fflush(stdout);
 
 
 
-
+// computes density profile
 void perfil_densidad(int voids){
 int ind_JN,ind_i,ind_j,ind_k;		//	variables cuadrante
 int id_stack;
@@ -1243,7 +1240,7 @@ printf("calcula error_pefil_densidad...hecho\n");fflush(stdout);
 
 
 
-
+// print linear theory for velocity profile
 void imprime_teoria_radial(){
   int i,j;
   double integral[Num_bin_stack_objects]={0.};
@@ -1283,7 +1280,7 @@ void imprime_teoria_radial(){
 
 
 
-
+// comutes velocity profile
 void perfil_radial(void){
 int id_stack;
 int i,j,k,l,p,ii,jj,kk,ijk;
@@ -1564,7 +1561,7 @@ printf("calcula error_pefil_radial...hecho\n");fflush(stdout);
 
 
 
-
+// print velocity profiles
 void imprime_radial(void){
   int i,j;
   FILE * AL;
@@ -1604,8 +1601,7 @@ void imprime_radial(void){
 
 
 
-
-//	lee xyz, y llena los IDs
+// read dark matter particles and put them into the kdtree
 void lee_particulas(){
   printf("lee xyz...\n");
   fflush(stdout);
